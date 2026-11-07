@@ -14,7 +14,8 @@ struct LineScreen: View {
                 content(line, now)
             }
             .background(AC.background)
-            .navigationTitle(line.name.text)
+            // The line's badge and name are at the top of the page already
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

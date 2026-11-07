@@ -19,7 +19,8 @@ struct StopScreen: View {
                 content(stop, now)
             }
             .background(AC.background)
-            .navigationTitle(stop.title)
+            // The stop's name is at the top of the page already
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
