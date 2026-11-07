@@ -2,7 +2,9 @@ import Foundation
 
 /// A trip of the timetable that's sending where its bus is, and how far off the timetable it runs
 struct LiveTrip: Hashable {
+    /// `Line.id`
     let lineId: String
+    /// `Direction.id`
     let directionId: String
     /// When the trip left its first stop by the timetable, minutes since midnight: which trip it is
     let tripStart: Int
@@ -26,6 +28,7 @@ enum ISOTime {
         return f
     }()
 
+    /// The date in an ISO instant like "2026-10-31T08:15:27.000Z", or nil
     static func parse(_ text: String) -> Date? {
         fractional.date(from: text) ?? plain.date(from: text)
     }
@@ -42,6 +45,7 @@ enum LiveTrips {
     private static let earliest = -5.0
     private static let latest = 30.0
 
+    /// The live trips for the buses the server sent; `calendar` is the phone's, or a fixed one for the tests
     static func compute(data: TransitData, schedule: Schedule, buses: [LiveBus], calendar: Calendar = .current) -> [LiveTrip] {
         buses.compactMap { bus -> LiveTrip? in
             guard let line = data.line(bus.line), let direction = line.directions.first(where: { $0.id == bus.direction }) else { return nil }
@@ -96,9 +100,13 @@ enum LiveTrips {
 /// A bus to draw on the map, where it really is or where the timetable says it should be
 struct BusOnMap: Hashable, Identifiable {
     let id: String
+    /// The line it's running
     let line: Line
+    /// Which way it's going
     let direction: Direction
+    /// Latitude, WGS84
     let lat: Double
+    /// Longitude, WGS84
     let lng: Double
     /// Sent by the phone in the bus, rather than estimated
     let live: Bool

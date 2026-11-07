@@ -10,6 +10,7 @@ struct EstimatedBus: Hashable {
     let departure: Int
     /// Where it should be now, along the street path
     let lat: Double
+    /// Where it should be now, along the street path
     let lng: Double
     /// Direction of travel, degrees clockwise from north
     let bearing: Double
@@ -26,7 +27,9 @@ final class BusEstimator {
 
     /// One direction laid out along its street path, in metres on a flat plane around Kastoria
     private struct Track {
+        /// The line this is a direction of
         let line: Line
+        /// The direction laid out
         let direction: Direction
         /// The street path
         let points: [LatLng]
@@ -47,6 +50,7 @@ final class BusEstimator {
     /// How far along the path to look for the next stop
     private static let searchAheadMeters = 3_000.0
 
+    /// Lays out the directions along their street paths the first time they're needed
     init(data: TransitData, schedule: Schedule) {
         self.data = data
         self.schedule = schedule

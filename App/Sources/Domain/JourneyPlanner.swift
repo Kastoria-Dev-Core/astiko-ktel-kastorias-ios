@@ -23,6 +23,7 @@ enum Destination: String, CaseIterable, Identifiable {
 
 /// A stop and how far it is from the user
 struct NearbyStop: Hashable {
+    /// The stop
     let stop: Stop
     /// Straight-line distance from the user
     let distanceMeters: Double
@@ -33,7 +34,9 @@ struct NearbyStop: Hashable {
 
 /// A direction that takes you from `board` (near you) to `alightStopId` (at the destination)
 struct Ride: Hashable {
+    /// The line to take
     let line: Line
+    /// The way the line has to be going to reach the destination
     let direction: Direction
     /// Where to get on
     let board: NearbyStop
@@ -45,6 +48,7 @@ struct Ride: Hashable {
 
 /// The next bus of a ride you can still walk to in time, and the one after it
 struct JourneyOption: Hashable, Identifiable {
+    /// Which line, from where, to where
     let ride: Ride
     /// When the bus reaches the boarding stop, minutes since midnight
     let minutes: Int
@@ -72,6 +76,7 @@ enum JourneyStatus {
 
 /// The answer to "Where do you want to go?" for one destination
 struct JourneyPlan {
+    /// What came of it; `options` is empty unless `.ready`
     let status: JourneyStatus
     /// The stop closest to the user, whether or not a bus from it goes there
     let nearestStop: NearbyStop
@@ -93,6 +98,7 @@ enum JourneyPlanner {
     /// Rides from stops this much further than the closest useful stop are shown too
     private static let extraWalkMeters = 300.0
 
+    /// The plan for getting from a point to `destination` at `now`, or nil when there are no stops. Stops close by come first; further ones are only looked at when none of those has a bus that goes there.
     static func plan(data: TransitData, schedule: Schedule, destination: Destination, lat: Double, lng: Double, now: LocalDateTime) -> JourneyPlan? {
         let nearby = data.stops
             .map { NearbyStop(stop: $0, distanceMeters: Geo.distanceMeters(lat, lng, $0.lat, $0.lng)) }

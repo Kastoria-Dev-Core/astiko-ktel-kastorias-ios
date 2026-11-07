@@ -5,6 +5,7 @@ import Foundation
 final class Schedule {
     private let data: TransitData
 
+    /// The timetable logic over the network
     init(_ data: TransitData) {
         self.data = data
     }
