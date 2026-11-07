@@ -1,0 +1,88 @@
+# The Xcode project, made by XcodeGen (https://github.com/yonaskolb/XcodeGen):
+#
+#   brew install xcodegen && xcodegen
+#
+# The .xcodeproj it makes isn't committed: this file is the project. CI makes it
+# the same way before every build.
+
+name: AstikaKastorias
+
+options:
+  bundleIdPrefix: com.kastoriadevs
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  developmentLanguage: el
+
+settings:
+  base:
+    # The version, like versionName on Android: the release workflow publishes when it goes up
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    # No Apple developer account yet: the app is built unsigned and signed when it's installed
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  AstikaKastorias:
+    type: application
+    platform: iOS
+    sources:
+      - path: App/Sources
+      - path: App/Resources
+        buildPhase: resources
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Αστικά Καστοριάς
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDevelopmentRegion: el
+        CFBundleLocalizations: [el, en]
+        LSApplicationQueriesSchemes: [comgooglemaps]
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIAppFonts:
+          - commissioner_regular.ttf
+          - commissioner_medium.ttf
+          - commissioner_semibold.ttf
+          - commissioner_bold.ttf
+        NSLocationWhenInUseUsageDescription: >-
+          Για τις στάσεις κοντά σου και τα λεωφορεία που σε πάνε εκεί που θέλεις.
+          Η θέση σου μένει στο κινητό και δεν στέλνεται πουθενά.
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kastoriadevs.astikoktel
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+  AstikaKastoriasTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: AstikaKastorias
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.kastoriadevs.astikoktel.tests
+
+schemes:
+  AstikaKastorias:
+    build:
+      targets:
+        AstikaKastorias: all
+        AstikaKastoriasTests: [test]
+    test:
+      targets:
+        - AstikaKastoriasTests
+    run:
+      config: Debug
+    archive:
+      config: Release

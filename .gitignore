@@ -8,3 +8,4 @@ build/
 xcuserdata/
 __pycache__/
 screenshots/
+App/Info.plist
