@@ -1,0 +1,10 @@
+.DS_Store
+# Made by XcodeGen from project.yml, so never committed
+*.xcodeproj/
+*.xcworkspace/
+DerivedData/
+build/
+*.ipa
+xcuserdata/
+__pycache__/
+screenshots/

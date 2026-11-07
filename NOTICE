@@ -1,0 +1,37 @@
+Kastoria City Buses for iOS (Αστικά Καστοριάς)
+Copyright (C) 2026 Kastoria Dev Core: Ioannis Michadasis, Giorgos Gasparis
+and Konstantinos Theologou
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along
+with this program, in the file LICENSE. If not, see
+<https://www.gnu.org/licenses/>.
+
+
+Additional permission under GNU GPL version 3 section 7
+
+The licensors of this Program grant you additional permission to convey the
+Program, or a work based on it, through Apple's App Store and TestFlight,
+under the terms Apple sets for apps distributed there (including its usage
+rules and digital rights management), provided that the Corresponding Source
+stays available to everyone under this license.
+
+
+Not covered by this license
+
+- Stops: from kastoria.citybus.gr, the operator's live bus site.
+- Timetables and announcements: from Αστικό ΚΤΕΛ Καστοριάς
+  (astikoktelkastorias.gr), which owns them.
+- Street paths built from map data: © OpenStreetMap contributors, under the
+  Open Database License (ODbL), <https://www.openstreetmap.org/copyright>.
+- The Commissioner font in App/Resources/Fonts: by Kostas Bartsokas, under
+  the SIL Open Font License, in docs/licenses/Commissioner-OFL.txt.
