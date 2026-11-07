@@ -12,6 +12,23 @@ The iPhone version of [astiko-ktel-kastorias-app](https://github.com/Kastoria-De
 * The same text in Greek and English, brought over from the Android `strings.xml`
 * The same rules: the timetable logic, holidays and Orthodox Easter, the journey planner, the bus estimates and the live times are ports of the Kotlin code, with the same tests
 
+## Screenshots
+
+From the iPhone simulator on CI (`scripts/screenshots.sh`):
+
+<p>
+<img src="docs/screenshots/el-home.png" width="200" />
+<img src="docs/screenshots/el-stop.png" width="200" />
+<img src="docs/screenshots/el-map-line.png" width="200" />
+<img src="docs/screenshots/el-line.png" width="200" />
+</p>
+<p>
+<img src="docs/screenshots/el-route.png" width="200" />
+<img src="docs/screenshots/el-map.png" width="200" />
+<img src="docs/screenshots/el-settings.png" width="200" />
+<img src="docs/screenshots/el-stop-dark.png" width="200" />
+</p>
+
 ## Features
 
 * Next departures for any stop, with live times (the signal icon) for buses whose phone is sending
@@ -89,6 +106,18 @@ To bring new text over after the Android app changes its strings:
 
 ```bash
 python scripts/import_strings.py
+```
+
+## Code documentation
+
+Every type, property and function has a doc comment, and the docs are a site like the two other repos':
+
+https://kastoria-dev-core.github.io/astiko-ktel-kastorias-ios/
+
+`scripts/gen_docs.py` makes it (a Doxygen-style generator for Swift, with the same look as the Android app's) and `.github/workflows/docs.yml` publishes it on every push to `main`. To make it locally, into `docs/html`:
+
+```bash
+python scripts/gen_docs.py
 ```
 
 ## License
