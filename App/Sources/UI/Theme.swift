@@ -93,7 +93,11 @@ enum BarAppearance {
         let buttons = UIBarButtonItemAppearance()
         buttons.normal.titleTextAttributes = [.font: UIFont.brand(17)]
         nav.buttonAppearance = buttons
-        nav.backButtonAppearance = buttons
+        // Just the chevron: the system would write "Back" in the phone's language, not the app's
+        let back = UIBarButtonItemAppearance()
+        back.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        back.highlighted.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        nav.backButtonAppearance = back
         UINavigationBar.appearance().standardAppearance = nav
         UINavigationBar.appearance().scrollEdgeAppearance = nav
         UINavigationBar.appearance().compactAppearance = nav
