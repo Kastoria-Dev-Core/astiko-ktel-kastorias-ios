@@ -2,17 +2,24 @@ import SwiftUI
 
 /// The size of a line badge: a small rounded rectangle, never a circle or a pill
 enum BadgeSize {
+    /// Small in lists, medium in headers of cards, large in page headers
     case sm, md, lg
 
+    /// Height of the badge
     var height: CGFloat { self == .sm ? 24 : self == .md ? 28 : 32 }
+    /// Wide enough for two digits; never narrower, so badges line up
     var minWidth: CGFloat { self == .sm ? 34 : self == .md ? 40 : 44 }
+    /// Size of the number
     var font: CGFloat { self == .sm ? 13 : self == .md ? 15 : 17 }
+    /// Corner radius
     var radius: CGFloat { self == .sm ? 6 : self == .md ? 7 : 8 }
 }
 
 /// A line's number in its colour. School lines are outlined so they read as a different kind of service.
 struct LineBadge: View {
+    /// The line whose number and colour it shows
     let line: Line
+    /// How big it's drawn
     var size: BadgeSize = .sm
 
     var body: some View {
@@ -32,8 +39,11 @@ struct LineBadge: View {
 
 /// The app's card: white (or raised in dark mode), rounded, with a thin border
 struct AppCard<Content: View>: View {
+    /// Space on the left and right of the content
     var padding: CGFloat = 16
+    /// Space between the content's pieces
     var spacing: CGFloat = 12
+    /// What's in the card
     @ViewBuilder let content: Content
 
     var body: some View {
@@ -48,6 +58,7 @@ struct AppCard<Content: View>: View {
 
 /// Says the timetables are sample data, not the operator's
 struct PlaceholderBanner: View {
+    /// Shown only when meta.json says the timetables are sample data
     let visible: Bool
 
     var body: some View {
@@ -67,7 +78,9 @@ struct PlaceholderBanner: View {
 
 /// Section heading, the same size everywhere, with an optional button on the right
 struct SectionTitle<Trailing: View>: View {
+    /// The heading
     let text: String
+    /// A button or link on the right, e.g. "Edit"
     @ViewBuilder var trailing: Trailing
 
     var body: some View {
@@ -82,6 +95,7 @@ struct SectionTitle<Trailing: View>: View {
 }
 
 extension SectionTitle where Trailing == EmptyView {
+    /// A heading with nothing on its right
     init(_ text: String) {
         self.text = text
         trailing = EmptyView()
@@ -90,6 +104,7 @@ extension SectionTitle where Trailing == EmptyView {
 
 /// A small label in the banner colours, e.g. a walking distance or "Last"
 struct Pill: View {
+    /// The label's text
     let text: String
 
     var body: some View {
@@ -105,7 +120,9 @@ struct Pill: View {
 
 /// A star that adds the stop to the favourites or takes it out
 struct FavoriteButton: View {
+    /// The stop it adds or takes out
     let stopId: String
+    /// The colour of the empty star
     var tint: Color = AC.muted
     @EnvironmentObject private var settings: AppSettings
 
@@ -125,7 +142,9 @@ struct FavoriteButton: View {
 
 /// An info icon next to a departure the operator wrote something about, e.g. "Μαθητικό"
 struct NoteButton: View {
+    /// What the operator wrote about the trip, in Greek
     let note: String
+    /// The colour of the icon
     var tint: Color = AC.link
     @State private var open = false
 
@@ -168,8 +187,11 @@ private struct LiveMark<Content: View>: View {
 /// One departure. Within the hour the minutes are what you read first, with the clock time under them;
 /// later ones show the clock time only. A bus that already left is shown faded.
 struct DepartureRow: View {
+    /// The departure
     let dep: Departure
+    /// The time the minutes are counted from
     let now: LocalDateTime
+    /// The bus already left: shown faded, with its clock time
     var departed = false
 
     var body: some View {
@@ -216,6 +238,7 @@ struct DepartureRow: View {
 
 /// Hairline between rows, starting after the badge column
 struct RowDivider: View {
+    /// Where the line starts, after the badge column
     var inset: CGFloat = 46
 
     var body: some View {
@@ -225,8 +248,11 @@ struct RowDivider: View {
 
 /// Departures in one list; `previous` is the bus that just left, shown faded on top
 struct DepartureList: View {
+    /// The departures, soonest first
     let departures: [Departure]
+    /// The time the minutes are counted from
     let now: LocalDateTime
+    /// The bus that just left, shown faded above the others
     var previous: Departure?
 
     var body: some View {
@@ -262,9 +288,13 @@ struct DepartureList: View {
 
 /// A stop with its next departures and a star, as on Home
 struct StopCard: View {
+    /// The stop
     let stop: Stop
+    /// Its next departures
     let departures: [Departure]
+    /// The time the minutes are counted from
     let now: LocalDateTime
+    /// How far it is from the user, added after the stop code when known
     var distanceMeters: Double?
 
     var body: some View {
@@ -294,7 +324,9 @@ struct StopCard: View {
 
 /// Segmented control in the app's colours
 struct Segmented<T: Hashable>: View {
+    /// The choices and their labels, in order
     let options: [(value: T, label: String)]
+    /// The chosen one
     @Binding var selected: T
 
     var body: some View {
@@ -327,9 +359,13 @@ struct Segmented<T: Hashable>: View {
 
 /// Rounded filter chip: dark when selected, outlined otherwise
 struct AppChip<Label: View>: View {
+    /// Drawn dark when selected
     let selected: Bool
+    /// Space on the left and right of the label
     var horizontalPadding: CGFloat = 12
+    /// What a tap does
     let action: () -> Void
+    /// What's in the chip
     @ViewBuilder let label: Label
 
     var body: some View {
@@ -348,7 +384,9 @@ struct AppChip<Label: View>: View {
 
 /// A row of text chips, one selected
 struct ChipRow<T: Hashable>: View {
+    /// The choices and their labels, in order
     let options: [(value: T, label: String)]
+    /// The chosen one
     @Binding var selected: T
 
     var body: some View {
@@ -369,7 +407,9 @@ struct ChipRow<T: Hashable>: View {
 
 /// The current time, refreshed every 15 seconds while the screen shows
 struct Ticking<Content: View>: View {
+    /// Seconds between updates
     var interval: TimeInterval = 15
+    /// The view, made again with the new time
     @ViewBuilder let content: (LocalDateTime) -> Content
 
     var body: some View {
