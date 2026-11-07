@@ -39,6 +39,7 @@ final class TransitRepository {
     /// The whole network, read once
     let data: TransitData
 
+    /// Reads the bundled transit.json, or the downloaded copy when it's newer
     init(bundle: Bundle = .main) {
         let support = (try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true))
             ?? FileManager.default.temporaryDirectory

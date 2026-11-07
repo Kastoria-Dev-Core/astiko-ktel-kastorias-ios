@@ -2,6 +2,7 @@ import Foundation
 
 /// Light or dark theme, or whatever the phone is set to
 enum ThemeMode: String, CaseIterable {
+    /// Follow the phone, always light, or always dark
     case system, light, dark
 }
 
@@ -35,6 +36,7 @@ final class AppSettings: ObservableObject {
         }
     }
 
+    /// Reads the saved settings, the phone's language until one is picked
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         favorites = (defaults.string(forKey: "favorites") ?? "").split(separator: ",").map(String.init).filter { !$0.isEmpty }
@@ -55,5 +57,6 @@ final class AppSettings: ObservableObject {
         }
     }
 
+    /// Whether the stop is one of the favourites
     func isFavorite(_ stopId: String) -> Bool { favorites.contains(stopId) }
 }

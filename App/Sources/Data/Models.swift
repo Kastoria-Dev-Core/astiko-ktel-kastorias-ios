@@ -61,6 +61,7 @@ struct Direction: Hashable, Identifiable {
 extension Direction: Codable {
     private enum CodingKeys: String, CodingKey { case id, headsign, stops, shape, branches }
 
+    /// Reads a direction; one without alternative endings leaves `branches` out
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decode(String.self, forKey: .id)
@@ -97,6 +98,7 @@ struct Line: Hashable, Identifiable {
 extension Line: Codable {
     private enum CodingKeys: String, CodingKey { case id, number, name, color, textColor, directions, school }
 
+    /// Reads a line; `school` is false when it's left out
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decode(String.self, forKey: .id)
@@ -111,6 +113,7 @@ extension Line: Codable {
 
 /// Which timetable a day runs on. Holidays run on the Sunday one.
 enum ServiceDay: String, Codable, CaseIterable, Hashable {
+    /// Monday to Friday, Saturday, and Sunday and holidays
     case weekday, saturday, sunday
     /// Wednesdays only, for the few lines whose Wednesday differs from the other weekdays
     case wednesday
@@ -118,6 +121,7 @@ enum ServiceDay: String, Codable, CaseIterable, Hashable {
 
 /// Winter or summer timetable; the summer period is `Meta.summer`
 enum Season: String, Codable, Hashable {
+    /// The two seasons of the timetables
     case winter, summer
 }
 
@@ -140,6 +144,7 @@ struct Timetable: Hashable {
 extension Timetable: Codable {
     private enum CodingKeys: String, CodingKey { case line, direction, service, season, departures, notes }
 
+    /// Reads a timetable; one without notes leaves `notes` out
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         line = try c.decode(String.self, forKey: .line)
@@ -177,8 +182,11 @@ struct Meta: Codable, Hashable {
 struct TransitBundle: Codable {
     /// Format version: a bundle with another one is ignored
     let schema: Int
+    /// Every stop, from stops.json
     let stops: [Stop]
+    /// Every line, from lines.json
     let lines: [Line]
+    /// Every timetable, from timetables.json
     let timetables: [Timetable]
     /// `Meta.updated` decides whether a downloaded copy is newer than the app's own
     let meta: Meta
@@ -198,20 +206,27 @@ struct TransitBundle: Codable {
 
 /// A point on the map
 struct LatLng: Hashable {
+    /// Latitude, WGS84
     let lat: Double
+    /// Longitude, WGS84
     let lng: Double
 }
 
 /// Everything the app knows about the network
 final class TransitData {
+    /// Every stop
     let stops: [Stop]
+    /// Every line, in their order
     let lines: [Line]
+    /// Every timetable
     let timetables: [Timetable]
+    /// About the data: season, holidays, when it was updated
     let meta: Meta
 
     private let stopById: [String: Stop]
     private let lineById: [String: Line]
 
+    /// Keeps the network and indexes the stops and lines by id
     init(stops: [Stop], lines: [Line], timetables: [Timetable], meta: Meta) {
         self.stops = stops
         self.lines = lines
@@ -221,6 +236,7 @@ final class TransitData {
         lineById = Dictionary(lines.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
     }
 
+    /// The network from a downloaded or bundled transit.json
     convenience init(_ bundle: TransitBundle) {
         self.init(stops: bundle.stops, lines: bundle.lines, timetables: bundle.timetables, meta: bundle.meta)
     }

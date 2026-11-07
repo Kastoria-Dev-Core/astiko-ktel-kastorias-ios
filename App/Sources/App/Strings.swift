@@ -8,9 +8,13 @@ enum Strings {
     static var language = "el"
 
     private struct File: Decodable {
+        /// English texts by key
         let en: [String: String]
+        /// Greek texts by key
         let el: [String: String]
+        /// Plural forms by language, key and "one" or "other"
         let plurals: [String: [String: [String: String]]]
+        /// Lists by language and key, e.g. the contributors
         let arrays: [String: [String: [String]]]
     }
 
@@ -101,6 +105,7 @@ extension ServiceDay {
 }
 
 extension Season {
+    /// "Winter" or "Summer"
     var label: String { self == .winter ? L("winter") : L("summer") }
 }
 

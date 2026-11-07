@@ -20,8 +20,10 @@ final class AppContainer: ObservableObject {
     /// while the app is open.
     @Published private(set) var liveTrips: [LiveTrip] = []
 
+    /// The network, from `transit`
     var data: TransitData { transit.data }
 
+    /// Reads the network and builds the timetable logic and the bus estimates over it
     init() {
         transit = TransitRepository()
         schedule = Schedule(transit.data)
@@ -35,12 +37,14 @@ final class AppContainer: ObservableObject {
     }
 }
 
+/// The app: one window with the tabs, the shared container and settings, live trips every 15 seconds while it's open
 @main
 struct AstikaApp: App {
     @StateObject private var container = AppContainer()
     @StateObject private var settings = AppSettings()
     @Environment(\.scenePhase) private var scenePhase
 
+    /// Sets the navigation and tab bars in the app's font and colours
     init() {
         BarAppearance.apply()
     }

@@ -23,6 +23,7 @@ struct Announcement: Codable, Hashable, Identifiable {
 
     private enum CodingKeys: String, CodingKey { case id, title, text, kind, published, url, image, dates, validUntil }
 
+    /// Reads an announcement, with defaults for the fields the feed may leave out
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decode(Int64.self, forKey: .id)
@@ -52,7 +53,9 @@ struct Announcement: Codable, Hashable, Identifiable {
 
 /// The feed as a whole, also what's kept in the cache file
 struct AnnouncementFeed: Codable {
+    /// When the feed was made, ISO instant
     let fetchedAt: String
+    /// Every announcement the feed has, newest first
     let announcements: [Announcement]
 }
 
@@ -72,6 +75,7 @@ final class AnnouncementsStore: ObservableObject {
     /// Opening the screen again within this doesn't fetch the feed again
     private let minInterval: TimeInterval = 15 * 60
 
+    /// Keeps the last good feed in the app's caches folder
     init() {
         let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ?? FileManager.default.temporaryDirectory
         cacheFile = caches.appendingPathComponent("announcements.json")

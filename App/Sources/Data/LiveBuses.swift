@@ -8,7 +8,9 @@ struct LiveBus: Codable, Hashable {
     let line: String
     /// `Direction.id`
     let direction: String
+    /// Latitude, WGS84
     let lat: Double
+    /// Longitude, WGS84
     let lng: Double
     /// Direction of travel, degrees clockwise from north, when the phone knew it
     let bearing: Double?

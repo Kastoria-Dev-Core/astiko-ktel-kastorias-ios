@@ -23,6 +23,7 @@ final class LocationClient: NSObject, ObservableObject, CLLocationManagerDelegat
     /// The oldest last known position still trusted
     private let maxLastKnownAge: TimeInterval = 120
 
+    /// Sets itself as the location manager's delegate, asking for the best accuracy
     override init() {
         super.init()
         manager.delegate = self
@@ -85,6 +86,7 @@ final class LocationClient: NSObject, ObservableObject, CLLocationManagerDelegat
         waiters.forEach { $0.resume() }
     }
 
+    /// The permission was answered: wakes up whoever is waiting for it
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         Task { @MainActor in
@@ -92,11 +94,13 @@ final class LocationClient: NSObject, ObservableObject, CLLocationManagerDelegat
         }
     }
 
+    /// A fix came: hands the newest one to whoever is waiting
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let last = locations.last
         Task { @MainActor in self.finishFix(last) }
     }
 
+    /// No fix: whoever is waiting gets nothing and falls back on the last known position
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in self.finishFix(nil) }
     }
