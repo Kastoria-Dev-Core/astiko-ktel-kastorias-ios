@@ -57,7 +57,7 @@ jobs:
 
       - name: Tests
         run: |
-          set -o pipefail
+          mkdir -p build
           xcodebuild test \
             -project AstikaKastorias.xcodeproj -scheme AstikaKastorias \
             -destination "id=${{ steps.sim.outputs.udid }}" \
