@@ -1,6 +1,7 @@
 import SwiftUI
 
 extension Destination {
+    /// Its name on the chip, e.g. "Κέντρο"
     var label: String {
         switch self {
         case .centre: return L("destination_centre")
@@ -13,9 +14,13 @@ extension Destination {
 /// "Where do you want to go?" on Home: pick a place and see every bus that goes there from a stop near you,
 /// the one that comes first at the top
 struct JourneySection: View {
+    /// The place picked, nil until one is
     @Binding var destination: Destination?
+    /// Where finding the user's position is at
     let nearby: NearbyState
+    /// The time the buses are counted from
     let now: LocalDateTime
+    /// Finds the user's position, again after walking somewhere else
     let onLocate: () -> Void
     @EnvironmentObject private var container: AppContainer
     /// Only the 3 soonest buses, until "All buses"

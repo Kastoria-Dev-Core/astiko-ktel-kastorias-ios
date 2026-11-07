@@ -2,7 +2,9 @@ import SwiftUI
 
 /// A line's full timetable from its first stop, for each direction and kind of day, in the current season
 struct LineScreen: View {
+    /// `Line.id`
     let lineId: String
+    /// The direction to open on; nil opens the first
     let initialDirectionId: String?
     @EnvironmentObject private var container: AppContainer
     @State private var directionId: String?

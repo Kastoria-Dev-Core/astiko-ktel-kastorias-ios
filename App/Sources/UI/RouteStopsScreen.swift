@@ -2,7 +2,9 @@ import SwiftUI
 
 /// Every stop of a direction, when the next bus reaches each, and where the buses are between them
 struct RouteStopsScreen: View {
+    /// `Line.id`
     let lineId: String
+    /// The direction to open on; nil opens the first
     let initialDirectionId: String?
     @EnvironmentObject private var container: AppContainer
     @EnvironmentObject private var settings: AppSettings

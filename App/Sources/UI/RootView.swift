@@ -10,13 +10,17 @@ enum Route: Hashable {
     case routeStops(String, String)
     /// The map on a line or a stop, opened from another screen
     case map(line: String?, stop: String?)
+    /// The operator's announcements
     case announcements
+    /// Language, theme and voice
     case settings
+    /// Contact details, contributors and the fine print
     case about
 }
 
 /// The bottom tabs
 enum Tab: Hashable {
+    /// Home, the list of lines, and the map
     case home, lines, map
 }
 

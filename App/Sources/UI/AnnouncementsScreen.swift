@@ -104,6 +104,7 @@ func publishedDate(_ announcement: Announcement) -> String {
 
 /// Compact row for the Home screen: thumbnail, title, date
 struct AnnouncementRow: View {
+    /// The announcement to show
     let announcement: Announcement
 
     var body: some View {

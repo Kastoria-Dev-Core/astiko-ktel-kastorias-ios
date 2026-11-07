@@ -2,9 +2,12 @@ import SwiftUI
 
 /// Where finding the user's position is at, for "Where do you want to go?"
 enum NearbyState: Equatable {
+    /// Not asked yet, waiting for a fix, refused, location off, or no fix
     case idle, loading, denied, disabled, error
+    /// Found
     case ready(Coords)
 
+    /// Where the user is, once found
     var coords: Coords? {
         if case .ready(let coords) = self { return coords }
         return nil
@@ -160,8 +163,11 @@ struct HomeScreen: View {
 
 /// The search box: a magnifier, the text, and a button to clear it
 struct SearchField: View {
+    /// What's typed
     @Binding var text: String
+    /// Shown while it's empty
     let placeholder: String
+    /// The smaller field inside the favourites picker
     var compact = false
 
     var body: some View {

@@ -13,6 +13,7 @@ private let areaMargin = 0.07
 private let busRefresh: UInt64 = 5_000_000_000
 
 extension LatLng {
+    /// The point for MapKit
     var coordinate: CLLocationCoordinate2D { CLLocationCoordinate2D(latitude: lat, longitude: lng) }
 }
 
@@ -20,8 +21,11 @@ extension LatLng {
 /// `initialLineId` shows just that line, `initialStopId` opens that stop's card. `recenter` goes up each time
 /// the Map tab is tapped: the map then goes back to all stops, on the user or the terminal.
 struct MapScreen: View {
+    /// Show just this line, or nil for every stop
     let initialLineId: String?
+    /// Open on this stop with its card, or nil
     let initialStopId: String?
+    /// Goes up each time the Map tab is tapped
     let recenter: Int
 
     @EnvironmentObject private var container: AppContainer
@@ -35,6 +39,7 @@ struct MapScreen: View {
     @State private var locationMessage: String?
     @State private var handledRecenter = -1
 
+    /// Opens on the terminal; `onAppear` then moves to the stop or the line
     init(initialLineId: String?, initialStopId: String?, recenter: Int) {
         self.initialLineId = initialLineId
         self.initialStopId = initialStopId

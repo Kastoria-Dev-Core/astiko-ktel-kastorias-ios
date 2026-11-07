@@ -2,6 +2,7 @@ import SwiftUI
 
 /// A stop's next departures, filterable by line, read out loud when voice is on
 struct StopScreen: View {
+    /// `Stop.id`
     let stopId: String
     @EnvironmentObject private var container: AppContainer
     @EnvironmentObject private var settings: AppSettings
