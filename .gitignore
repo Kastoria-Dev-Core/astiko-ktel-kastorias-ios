@@ -7,4 +7,6 @@ build/
 *.ipa
 xcuserdata/
 __pycache__/
-screenshots/
+/screenshots/
+App/Info.plist
+docs/html/

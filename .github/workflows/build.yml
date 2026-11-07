@@ -1,0 +1,99 @@
+name: Build
+
+# Every pull request and push to main: makes the Xcode project from project.yml,
+# runs the tests on the iPhone simulator, takes screenshots of the main screens,
+# and builds an unsigned app for real iPhones.
+#
+# No one on the team has a Mac, so this is where the app is built and seen:
+#   - "screenshots" (Artifacts): the screens in Greek and English, light and dark
+#   - "ipa" (Artifacts): AstikaKastorias.ipa, unsigned. Sideloadly or AltStore on
+#     Windows sign it with a free Apple ID so it installs on an iPhone (for 7 days)
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - name: Make the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Pick a simulator
+        id: sim
+        run: |
+          udid=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          ios = sorted((k for k in devices if "iOS" in k), key=lambda k: [int(x) for x in k.split("iOS-")[1].split("-")])
+          for runtime in reversed(ios):
+              for d in devices[runtime]:
+                  if d["name"].startswith("iPhone") and "Pro" in d["name"] and "Max" not in d["name"]:
+                      print(d["udid"]); sys.exit()
+          for runtime in reversed(ios):
+              for d in devices[runtime]:
+                  if d["name"].startswith("iPhone"):
+                      print(d["udid"]); sys.exit()
+          ')
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+          xcrun simctl list devices | grep "$udid"
+
+      - name: Tests
+        run: |
+          mkdir -p build
+          xcodebuild test \
+            -project AstikaKastorias.xcodeproj -scheme AstikaKastorias \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath build/sim \
+            CODE_SIGNING_ALLOWED=NO | tee build/test.log | grep -E "error:|warning: unre|Test Case .* (passed|failed)|Executed|\*\* " || true
+          grep -q "\*\* TEST SUCCEEDED \*\*" build/test.log
+
+      - name: Screenshots
+        if: success() || failure()
+        timeout-minutes: 25
+        run: scripts/screenshots.sh "${{ steps.sim.outputs.udid }}" build/sim screenshots
+
+      - uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: screenshots
+          path: screenshots
+          if-no-files-found: ignore
+
+      - name: Unsigned app for iPhone
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project AstikaKastorias.xcodeproj -scheme AstikaKastorias \
+            -configuration Release -sdk iphoneos -destination "generic/platform=iOS" \
+            -derivedDataPath build/device \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" | grep -E "error:|\*\* " || true
+          app=build/device/Build/Products/Release-iphoneos/AstikaKastorias.app
+          test -d "$app"
+          mkdir -p build/ipa/Payload
+          cp -R "$app" build/ipa/Payload/
+          (cd build/ipa && zip -qr ../AstikaKastorias.ipa Payload)
+          ls -la build/AstikaKastorias.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: build/AstikaKastorias.ipa
+          retention-days: 30
