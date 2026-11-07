@@ -86,7 +86,7 @@ struct MapScreen: View {
     // MARK: - The map
 
     private func map(_ selectedLine: Line?, _ shownStops: [Stop]) -> some View {
-        Map(position: $position) {
+        Map(position: $position, bounds: bounds) {
             if let line = selectedLine {
                 // Both directions: outbound and return often take different streets
                 ForEach(paths(line).indices, id: \.self) { index in
@@ -118,7 +118,6 @@ struct MapScreen: View {
             MapCompass()
             MapScaleView()
         }
-        .mapCameraBounds(bounds)
         .onMapCameraChange(frequency: .onEnd) { context in
             far = context.camera.distance > farDistance
         }
