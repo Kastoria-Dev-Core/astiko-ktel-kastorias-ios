@@ -298,6 +298,16 @@ class Decl:
         return ""
 
     @property
+    def hidden(self):
+        """Private, or inside something private (e.g. the cases of a private CodingKeys)"""
+        d = self
+        while d is not None:
+            if d.visibility:
+                return True
+            d = d.parent
+        return False
+
+    @property
     def url(self):
         return f"{self.page}#{self.anchor}" if self.anchor else self.page
 
@@ -561,7 +571,7 @@ class Project:
 
     def documented(self):
         """Declarations that should have a doc comment, and the ones that do"""
-        want = [d for d in self.all_decls() if d.visibility == "" and d.kind != "extension" and d.file.folder != "Tests"
+        want = [d for d in self.all_decls() if not d.hidden and d.kind != "extension" and d.file.folder != "Tests"
                 and not (d.kind in ("var", "let") and d.parent is None and d.name.startswith("_"))
                 and d.name not in ("body", "id")]
         have = [d for d in want if d.doc.text]
