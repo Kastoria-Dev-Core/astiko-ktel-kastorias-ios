@@ -1,0 +1,98 @@
+name: Release
+
+# A push to main releases the app only when its version goes up, like the
+# Android app. The version is MARKETING_VERSION in project.yml: bump it
+# (0.1.0 -> 0.1.1) and the merge publishes release v0.1.1.
+#
+#   push to main, version 0.1.1 is new  -> release v0.1.1
+#   push to main, v0.1.1 already out    -> nothing
+#
+# CURRENT_PROJECT_VERSION (the build number) is this workflow's run number,
+# so it only goes up.
+#
+# There's no Apple developer account yet, so the release is an unsigned .ipa.
+# On Windows, Sideloadly (or AltStore) signs it with a free Apple ID while
+# installing it on an iPhone; such an install runs for 7 days. With an account,
+# this is where signing and the TestFlight upload go.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Work out the version
+        id: version
+        run: |
+          version=$(sed -n 's/^ *MARKETING_VERSION: "\([^"]*\)".*/\1/p' project.yml)
+          if [ -z "$version" ]; then
+            echo "::error::Couldn't read MARKETING_VERSION from project.yml"
+            exit 1
+          fi
+          tag="v$version"
+          latest=$(git tag -l 'v[0-9]*' | sort -V | tail -n 1)
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "$tag is already released, nothing to do"
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "$latest" ] && [ "$(printf '%s\n%s\n' "$latest" "$tag" | sort -V | tail -n 1)" != "$tag" ]; then
+            echo "$tag is older than $latest, nothing to do"
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "release=true" >> "$GITHUB_OUTPUT"
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Latest timetables
+        if: steps.version.outputs.release == 'true'
+        run: |
+          # The newest published network goes into the app; the app also downloads it when it starts
+          curl -fsSL https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/data/transit.json -o /tmp/transit.json \
+            && python3 -c 'import json; d = json.load(open("/tmp/transit.json")); assert d["schema"] == 1 and d["stops"] and d["lines"]' \
+            && cp /tmp/transit.json App/Resources/transit.json \
+            || echo "Keeping the transit.json in the repo"
+
+      - name: Build
+        if: steps.version.outputs.release == 'true'
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+          brew install xcodegen
+          xcodegen generate
+          set -o pipefail
+          xcodebuild build \
+            -project AstikaKastorias.xcodeproj -scheme AstikaKastorias \
+            -configuration Release -sdk iphoneos -destination "generic/platform=iOS" \
+            -derivedDataPath build \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" | grep -E "error:|\*\* " || true
+          app=build/Build/Products/Release-iphoneos/AstikaKastorias.app
+          test -d "$app"
+          mkdir -p build/ipa/Payload
+          cp -R "$app" build/ipa/Payload/
+          (cd build/ipa && zip -qr "../../astika-kastorias-$VERSION.ipa" Payload)
+
+      - name: Publish
+        if: steps.version.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$TAG" "astika-kastorias-$VERSION.ipa" \
+            --title "$TAG" \
+            --target "$GITHUB_SHA" \
+            --notes "Unsigned build for iPhone (iOS 17 or newer). Install it with Sideloadly or AltStore from Windows or a Mac, signing it with your Apple ID. See the README."
