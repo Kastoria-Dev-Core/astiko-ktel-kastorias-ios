@@ -74,7 +74,7 @@ func LP(_ key: String, _ count: Int) -> String {
 
 extension Localized {
     /// The text in the app's language
-    var text: String { get(Strings.language) }
+    var text: String { self.get(Strings.language) }
 }
 
 extension Stop {
