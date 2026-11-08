@@ -39,8 +39,11 @@ shot() {
 # The splash, partway through: launched without -screen it plays as on a real start
 xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
 xcrun simctl launch "$UDID" "$BUNDLE" -language el > /dev/null
-sleep 1.7
-xcrun simctl io "$UDID" screenshot "$OUT/el-splash.png" > /dev/null && echo el-splash
+# How long the first frame takes varies on CI, so several frames in a row catch the animation
+for n in 1 2 3 4 5 6; do
+  xcrun simctl io "$UDID" screenshot "$OUT/el-splash-$n.png" > /dev/null && echo "el-splash-$n"
+  sleep 0.4
+done
 
 for lang in el en; do
   shot "$lang-home" -language "$lang" -theme light -screen home
