@@ -53,6 +53,8 @@ struct AboutScreen: View {
     private let phone = "+30 24670 83959"
     private let fax = "+30 24670 21364"
     private let email = "astikast@otenet.gr"
+    /// Kastoria Dev Core's site, shown under the contributors
+    private let teamSite = "https://kastoria-dev-core.github.io/"
 
     var body: some View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
@@ -96,6 +98,11 @@ struct AboutScreen: View {
                     ForEach(Array(names.enumerated()), id: \.offset) { index, name in
                         if index > 0 { Rectangle().fill(AC.divider).frame(height: 1) }
                         Text(name).font(.brand(15)).padding(.vertical, 12).frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    // The team's site, with its other projects
+                    Rectangle().fill(AC.divider).frame(height: 1)
+                    row(L("website"), "kastoria-dev-core.github.io") {
+                        if let url = URL(string: teamSite) { openURL(url) }
                     }
                 }
                 VStack(alignment: .leading, spacing: 8) {
