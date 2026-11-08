@@ -1,0 +1,3 @@
+/* The name under the icon, and why the app asks for the location, in the phone's language */
+"CFBundleDisplayName" = "Αστικά Καστοριάς";
+"NSLocationWhenInUseUsageDescription" = "Για τις στάσεις κοντά σου και τα λεωφορεία που σε πάνε εκεί που θέλεις. Η θέση σου μένει στο κινητό και δεν στέλνεται πουθενά.";

@@ -1,0 +1,1 @@
+bus,city bus,Kastoria,KTEL,timetable,stops,transit,public transport,Greece
