@@ -1,8 +1,8 @@
 name: Screenshots
 
 # Screenshots of the main screens on the iPhone simulator, in Greek and English,
-# light and dark, and a video of the app starting (the splash). No one on the
-# team has a Mac, so this is how a change to the screens is seen.
+# light and dark, and a video of the app starting (the splash), so a change to
+# the screens can be looked at in the pull request.
 #
 #   - "screenshots" (Artifacts): the PNGs and splash.mp4
 #

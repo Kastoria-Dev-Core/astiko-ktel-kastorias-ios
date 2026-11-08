@@ -1,6 +1,6 @@
 #!/bin/bash
 # Screenshots of the main screens on the simulator, in Greek and English, light and dark,
-# so the app can be seen without a Mac. Used by .github/workflows/build.yml.
+# for looking at a change in its pull request. Used by .github/workflows/screenshots.yml.
 #
 #   scripts/screenshots.sh <simulator udid> <derived data path> <output folder>
 #
