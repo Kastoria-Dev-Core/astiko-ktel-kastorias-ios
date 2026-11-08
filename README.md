@@ -52,12 +52,11 @@ Every pull request also builds one, under the run's Artifacts ("ipa").
 
 ## Building it
 
-No one on the team has a Mac, so CI is where the app is built (`.github/workflows/build.yml`, on a macOS runner):
+No one on the team has a Mac, so CI is where the app is built, on macOS runners:
 
 1. [XcodeGen](https://github.com/yonaskolb/XcodeGen) makes `AstikaKastorias.xcodeproj` from `project.yml`. The project file isn't committed: `project.yml` is the project
-2. The tests run on the iPhone simulator
-3. `scripts/screenshots.sh` opens the main screens on the simulator in Greek and English, light and dark, and keeps the screenshots (Artifacts, "screenshots"). That's how a change is seen without a Mac
-4. An unsigned app for real iPhones is built and kept (Artifacts, "ipa")
+2. `build.yml` runs the tests on the iPhone simulator on every pull request and push to `main`, and on pull requests builds an unsigned app for real iPhones (Artifacts, "ipa")
+3. `screenshots.yml` opens the main screens on the simulator in Greek and English, light and dark, records the app starting, and keeps it all (Artifacts, "screenshots"). That's how a change is seen without a Mac. It takes a while, so it runs only on pull requests that change the screens or resources, and from the Actions tab
 
 On a Mac:
 
