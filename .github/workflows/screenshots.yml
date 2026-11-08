@@ -1,0 +1,64 @@
+name: Screenshots
+
+# Screenshots of the main screens on the iPhone simulator, in Greek and English,
+# light and dark, and a video of the app starting (the splash). No one on the
+# team has a Mac, so this is how a change to the screens is seen.
+#
+#   - "screenshots" (Artifacts): the PNGs and splash.mp4
+#
+# It takes several minutes, so it runs only on pull requests that change the
+# screens, the resources or the script, and from the Actions tab (Run workflow).
+
+on:
+  pull_request:
+    paths:
+      - App/Sources/UI/**
+      - App/Sources/App/**
+      - App/Resources/**
+      - scripts/screenshots.sh
+      - .github/workflows/screenshots.yml
+  workflow_dispatch:
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+
+      - name: Make the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Pick a simulator
+        id: sim
+        run: echo "udid=$(scripts/pick-simulator.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Build for the simulator
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project AstikaKastorias.xcodeproj -scheme AstikaKastorias \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath build/sim \
+            CODE_SIGNING_ALLOWED=NO | grep -E "error:|\*\* " || true
+          test -d build/sim/Build/Products/Debug-iphonesimulator/AstikaKastorias.app
+
+      - name: Screenshots
+        timeout-minutes: 25
+        run: scripts/screenshots.sh "${{ steps.sim.outputs.udid }}" build/sim screenshots
+
+      - uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: screenshots
+          path: screenshots
+          if-no-files-found: ignore
