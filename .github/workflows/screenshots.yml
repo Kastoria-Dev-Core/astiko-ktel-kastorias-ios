@@ -6,8 +6,12 @@ name: Screenshots
 #
 #   - "screenshots" (Artifacts): the PNGs and splash.mp4
 #
-# It takes several minutes, so it runs only on pull requests that change the
-# screens, the resources or the script, and from the Actions tab (Run workflow).
+# It takes several minutes, so it runs only when the screens, the resources or
+# the script change, and from the Actions tab (Run workflow).
+#
+# On main it also puts the new screenshots in docs/screenshots, the ones the
+# README and the organisation's site show, so they follow the app. Same file
+# names every time, so links to them keep working.
 
 on:
   pull_request:
@@ -17,7 +21,18 @@ on:
       - App/Resources/**
       - scripts/screenshots.sh
       - .github/workflows/screenshots.yml
+  push:
+    branches: [main]
+    paths:
+      - App/Sources/UI/**
+      - App/Sources/App/**
+      - App/Resources/**
+      - scripts/screenshots.sh
+      - .github/workflows/screenshots.yml
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 concurrency:
   group: screenshots-${{ github.ref }}
@@ -62,3 +77,21 @@ jobs:
           name: screenshots
           path: screenshots
           if-no-files-found: ignore
+
+      - name: Update docs/screenshots
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # 430 px wide is plenty for a page, and keeps the repo small
+          for f in screenshots/*.png; do
+            sips --resampleWidth 430 "$f" --out "docs/screenshots/$(basename "$f")" > /dev/null
+          done
+          git add docs/screenshots
+          if git diff --cached --quiet; then
+            echo "The screenshots haven't changed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update the screenshots"
+          git pull --rebase -q origin main
+          git push origin HEAD:main
