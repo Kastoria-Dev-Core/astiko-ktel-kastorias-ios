@@ -36,6 +36,12 @@ shot() {
   xcrun simctl io "$UDID" screenshot "$OUT/$name.png" > /dev/null && echo "$name"
 }
 
+# The splash, partway through: launched without -screen it plays as on a real start
+xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
+xcrun simctl launch "$UDID" "$BUNDLE" -language el > /dev/null
+sleep 1.7
+xcrun simctl io "$UDID" screenshot "$OUT/el-splash.png" > /dev/null && echo el-splash
+
 for lang in el en; do
   shot "$lang-home" -language "$lang" -theme light -screen home
 done
