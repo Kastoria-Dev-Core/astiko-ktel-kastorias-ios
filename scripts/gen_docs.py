@@ -1299,12 +1299,15 @@ class Site:
         types = len(p.types)
         decls = sum(1 for _ in p.all_decls())
         lines = sum(f.lines for f in p.files)
+        percent = round(100 * len(have) / len(want)) if want else 100
         stats = "".join(f"<div><b>{v}</b><span>{esc(k)}</span></div>" for k, v in [
-            ("Swift files", len(p.files)), ("lines", lines), ("types", types), ("declarations", decls)])
+            ("Swift files", len(p.files)), ("lines", lines), ("types", types), ("declarations", decls),
+            ("of declarations documented", f"{percent}%")])
         undoc = [d for d in want if not d.doc.text]
-        coverage = (f'<p class="coverage">{len(have)} of {len(want)} declarations documented.'
-                    + (" Not documented yet: " + ", ".join(f'<a class="el" href="{d.url}">{esc(d.scope)}.{esc(d.title)}</a>' for d in undoc[:60]) if undoc else "")
-                    + "</p>")
+        # The bar is the same .coverage as the Android docs: a short track with its fill, and the count beside it
+        coverage = (f'<p><span class="coverage"><i style="width:{percent}%"></i></span>'
+                    f'{len(have)} of {len(want)} declarations documented.</p>'
+                    + ('<p class="undoc">Not documented yet: ' + ", ".join(f'<a class="el" href="{d.url}">{esc(d.scope)}.{esc(d.title)}</a>' for d in undoc[:60]) + "</p>" if undoc else ""))
         frows = "".join(
             f'<tr><td class="entry"><a class="el" href="folder_{k}.html">{esc(k)}</a></td><td class="desc">{esc(FOLDERS.get(k, ""))}</td></tr>'
             for k in folders)
