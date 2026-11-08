@@ -1,13 +1,15 @@
 name: Build
 
-# Every pull request and push to main: makes the Xcode project from project.yml,
-# runs the tests on the iPhone simulator, takes screenshots of the main screens,
-# and builds an unsigned app for real iPhones.
+# Every pull request and push to main: makes the Xcode project from project.yml
+# and runs the tests on the iPhone simulator. On pull requests it also builds an
+# unsigned app for real iPhones:
 #
-# No one on the team has a Mac, so this is where the app is built and seen:
-#   - "screenshots" (Artifacts): the screens in Greek and English, light and dark
 #   - "ipa" (Artifacts): AstikaKastorias.ipa, unsigned. Sideloadly or AltStore on
 #     Windows sign it with a free Apple ID so it installs on an iPhone (for 7 days)
+#
+# Pushes to main skip the ipa: release.yml builds it when the version goes up.
+# Screenshots of the screens are their own workflow, screenshots.yml, since
+# they take longer than everything else here together.
 
 on:
   pull_request:
@@ -22,7 +24,7 @@ concurrency:
 jobs:
   build:
     runs-on: macos-15
-    timeout-minutes: 45
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -38,22 +40,7 @@ jobs:
 
       - name: Pick a simulator
         id: sim
-        run: |
-          udid=$(xcrun simctl list devices available -j | python3 -c '
-          import json, sys
-          devices = json.load(sys.stdin)["devices"]
-          ios = sorted((k for k in devices if "iOS" in k), key=lambda k: [int(x) for x in k.split("iOS-")[1].split("-")])
-          for runtime in reversed(ios):
-              for d in devices[runtime]:
-                  if d["name"].startswith("iPhone") and "Pro" in d["name"] and "Max" not in d["name"]:
-                      print(d["udid"]); sys.exit()
-          for runtime in reversed(ios):
-              for d in devices[runtime]:
-                  if d["name"].startswith("iPhone"):
-                      print(d["udid"]); sys.exit()
-          ')
-          echo "udid=$udid" >> "$GITHUB_OUTPUT"
-          xcrun simctl list devices | grep "$udid"
+        run: echo "udid=$(scripts/pick-simulator.sh)" >> "$GITHUB_OUTPUT"
 
       - name: Tests
         run: |
@@ -65,19 +52,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO | tee build/test.log | grep -E "error:|warning: unre|Test Case .* (passed|failed)|Executed|\*\* " || true
           grep -q "\*\* TEST SUCCEEDED \*\*" build/test.log
 
-      - name: Screenshots
-        if: success() || failure()
-        timeout-minutes: 25
-        run: scripts/screenshots.sh "${{ steps.sim.outputs.udid }}" build/sim screenshots
-
-      - uses: actions/upload-artifact@v4
-        if: success() || failure()
-        with:
-          name: screenshots
-          path: screenshots
-          if-no-files-found: ignore
-
       - name: Unsigned app for iPhone
+        if: github.event_name != 'push'
         run: |
           set -o pipefail
           xcodebuild build \
@@ -93,6 +69,7 @@ jobs:
           ls -la build/AstikaKastorias.ipa
 
       - uses: actions/upload-artifact@v4
+        if: github.event_name != 'push'
         with:
           name: ipa
           path: build/AstikaKastorias.ipa
