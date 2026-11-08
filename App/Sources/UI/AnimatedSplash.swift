@@ -2,9 +2,13 @@ import SwiftUI
 
 /// A timing curve like CSS's cubic-bezier(x1, y1, x2, y2), the same easings the Android splash uses
 struct CubicBezier {
+    /// The first control point's time, 0 to 1
     let x1: Double
+    /// The first control point's progress; above 1 overshoots
     let y1: Double
+    /// The second control point's time, 0 to 1
     let x2: Double
+    /// The second control point's progress
     let y2: Double
 
     /// Progress along the curve for a linear progress `t` from 0 to 1
