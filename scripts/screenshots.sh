@@ -36,6 +36,18 @@ shot() {
   xcrun simctl io "$UDID" screenshot "$OUT/$name.png" > /dev/null && echo "$name"
 }
 
+# The splash, partway through: launched without -screen it plays as on a real start
+xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
+# A video of the start, since a screenshot's timing against the animation is a guess on CI
+xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$OUT/splash.mp4" > /dev/null 2>&1 &
+REC=$!
+sleep 1.5
+xcrun simctl launch "$UDID" "$BUNDLE" -language el > /dev/null
+sleep 5
+kill -INT "$REC" 2>/dev/null
+wait "$REC" 2>/dev/null
+ls -la "$OUT/splash.mp4" 2>/dev/null && echo splash-video
+
 for lang in el en; do
   shot "$lang-home" -language "$lang" -theme light -screen home
 done

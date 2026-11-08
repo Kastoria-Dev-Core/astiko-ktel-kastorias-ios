@@ -43,6 +43,8 @@ struct AstikaApp: App {
     @StateObject private var container = AppContainer()
     @StateObject private var settings = AppSettings()
     @Environment(\.scenePhase) private var scenePhase
+    /// The splash has played. CI's screenshots (`-screen …`) skip it.
+    @State private var splashDone = UserDefaults.standard.string(forKey: "screen") != nil
 
     /// Sets the navigation and tab bars in the app's font and colours
     init() {
@@ -51,26 +53,37 @@ struct AstikaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                // A new language rebuilds every screen, so all text is read again
-                .id(settings.language)
-                .environmentObject(container)
-                .environmentObject(settings)
-                .environmentObject(container.announcements)
-                .font(.brand(15))
-                .tint(AC.primary)
-                .preferredColorScheme(settings.theme == .light ? .light : settings.theme == .dark ? .dark : nil)
-                .task {
-                    // The published timetables, for the next start
-                    await container.transit.refresh()
+            ZStack {
+                content
+                if !splashDone {
+                    AnimatedSplash { splashDone = true }
+                        .transition(.identity)
                 }
-                .task(id: scenePhase) {
-                    guard scenePhase == .active else { return }
-                    while !Task.isCancelled {
-                        await container.refreshLiveTrips()
-                        try? await Task.sleep(nanoseconds: 15_000_000_000)
-                    }
-                }
+            }
         }
+    }
+
+    /// The tabs with everything they share
+    private var content: some View {
+        RootView()
+            // A new language rebuilds every screen, so all text is read again
+            .id(settings.language)
+            .environmentObject(container)
+            .environmentObject(settings)
+            .environmentObject(container.announcements)
+            .font(.brand(15))
+            .tint(AC.primary)
+            .preferredColorScheme(settings.theme == .light ? .light : settings.theme == .dark ? .dark : nil)
+            .task {
+                // The published timetables, for the next start
+                await container.transit.refresh()
+            }
+            .task(id: scenePhase) {
+                guard scenePhase == .active else { return }
+                while !Task.isCancelled {
+                    await container.refreshLiveTrips()
+                    try? await Task.sleep(nanoseconds: 15_000_000_000)
+                }
+            }
     }
 }

@@ -15,13 +15,14 @@ struct SettingsScreen: View {
                                     (value: ThemeMode.light, label: L("theme_light")),
                                     (value: ThemeMode.dark, label: L("theme_dark"))],
                           selected: $settings.theme)
-                SectionTitle(L("voice_title")).padding(.top, 8)
+                // Just the name and the switch: the stop page has its own speaker button for each stop
                 AppCard {
                     Toggle(isOn: $settings.voice) {
-                        Text(L("voice_description")).font(.brand(14)).foregroundStyle(AC.ink2)
+                        Text(L("voice_title")).font(.brand(15, .medium))
                     }
                     .tint(AC.primary)
                 }
+                .padding(.top, 16)
                 NavigationLink(value: Route.about) {
                     AppCard {
                         HStack(spacing: 12) {
