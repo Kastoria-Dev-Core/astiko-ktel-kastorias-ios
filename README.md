@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="App/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png" width="100" />
+  <img src="docs/icon.png" width="100" />
   <h1>Kastoria City Buses for iOS</h1>
   <p>Every city bus line, stop and timetable in Kastoria, on your iPhone.</p>
 </div>
