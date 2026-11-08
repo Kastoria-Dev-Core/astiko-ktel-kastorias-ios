@@ -52,11 +52,11 @@ Every pull request also builds one, under the run's Artifacts ("ipa").
 
 ## Building it
 
-No one on the team has a Mac, so CI is where the app is built, on macOS runners:
+CI builds the app on macOS runners:
 
 1. [XcodeGen](https://github.com/yonaskolb/XcodeGen) makes `AstikaKastorias.xcodeproj` from `project.yml`. The project file isn't committed: `project.yml` is the project
 2. `build.yml` runs the tests on the iPhone simulator on every pull request and push to `main`, and on pull requests builds an unsigned app for real iPhones (Artifacts, "ipa")
-3. `screenshots.yml` opens the main screens on the simulator in Greek and English, light and dark, records the app starting, and keeps it all (Artifacts, "screenshots"). That's how a change is seen without a Mac. It takes a while, so it runs only on pull requests that change the screens or resources, and from the Actions tab
+3. `screenshots.yml` opens the main screens on the simulator in Greek and English, light and dark, records the app starting, and keeps it all (Artifacts, "screenshots"), so a change to the screens can be looked at in the pull request. It takes a while, so it runs only on pull requests that change the screens or resources, and from the Actions tab
 
 On a Mac:
 
@@ -75,7 +75,7 @@ Like the Android app: bump `MARKETING_VERSION` in `project.yml` and merge. `.git
 The App Store and TestFlight need an Apple Developer Program membership (99 USD a year). With one:
 
 * Set `DEVELOPMENT_TEAM` in `project.yml`
-* Add the signing certificate and an App Store Connect API key as repository secrets, and have `release.yml` archive, sign and upload to TestFlight instead of making an unsigned `.ipa`. That still runs on GitHub's macOS runners, so it doesn't need a Mac either
+* Add the signing certificate and an App Store Connect API key as repository secrets, and have `release.yml` archive, sign and upload to TestFlight instead of making an unsigned `.ipa`. That runs on GitHub's macOS runners too
 * The bundle id is `com.kastoriadevs.astikoktel`
 
 The App Store adds terms the GPL doesn't allow on its own, so `NOTICE` has an extra permission from the authors for the App Store and TestFlight.
