@@ -5,7 +5,7 @@ enum Endpoints {
     /// The whole network, published by the Android repo's docs workflow, so a timetable change reaches
     /// users without a new release
     static let transitData = URL(string: "https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/data/transit.json")!
-    /// The operator's announcements, from the astiko-ktel-announcements Vercel project
+    /// The operator's announcements, from the astiko-ktel-announcements cron job
     static let announcements = URL(string: "https://astiko-ktel-announcements.vercel.app/api/announcements?kind=service")!
     /// Where the buses really are, sent by the drivers' phones (astiko-ktel-odigoi)
     static let live = URL(string: "https://astiko-ktel-live.vercel.app/api/positions")!

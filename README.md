@@ -7,7 +7,7 @@
 The iPhone version of [astiko-ktel-kastorias-app](https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-app). It's written in SwiftUI and does the same things the same way:
 
 * The same data: the network the Android repo publishes (`transit.json`), downloaded at start so a timetable change reaches the app without a new release, with a copy built in for offline use
-* The same live buses, from the drivers' phones through [astiko-ktel-live](https://github.com/Kastoria-Dev-Core/astiko-ktel-live)
+* The same live buses, from the drivers' phones through the team's server
 * The same announcements, from astiko-ktel-announcements
 * The same text in Greek and English, brought over from the Android `strings.xml`
 * The same rules: the timetable logic, holidays and Orthodox Easter, the journey planner, the bus estimates and the live times are ports of the Kotlin code, with the same tests
