@@ -161,6 +161,8 @@ struct MapScreen: View {
             Spacer()
             if let stop = container.data.stop(openStopId) {
                 StopSheet(stop: stop) { withAnimation(.snappy) { openStopId = nil } }
+                    // A new card for each stop, so the speaker choice doesn't carry over
+                    .id(stop.id)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             } else {
                 HStack(alignment: .bottom, spacing: 12) {
@@ -450,56 +452,96 @@ private struct StopSheet: View {
     let stop: Stop
     let onClose: () -> Void
     @EnvironmentObject private var container: AppContainer
+    @EnvironmentObject private var settings: AppSettings
     @Environment(\.openURL) private var openURL
+    // Same as on the stop page: on or off as in Settings, the speaker button changes it for this stop
+    @State private var voiceChoice: Bool?
+    @State private var announcer = Announcer()
+    @State private var lastSpoken = ""
+    @State private var voiceMissing = false
+
+    /// The card's choice, or Settings' until the speaker button is tapped
+    private var voiceOn: Bool { voiceChoice ?? settings.voice }
 
     var body: some View {
-        Ticking { now in
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(stop.title).font(.brand(18, .semibold))
-                        Text(L("stop_code", stop.id)).font(.brand(13)).foregroundStyle(AC.muted)
-                    }
-                    .padding(.top, 6)
-                    Spacer()
-                    Button(action: onClose) {
-                        Image(systemName: "xmark").font(.system(size: 16, weight: .semibold)).foregroundStyle(AC.ink2).frame(width: 44, height: 44)
-                    }
-                    .accessibilityLabel(L("close"))
-                }
-                DepartureList(departures: container.schedule.nextDepartures(stop.id, now: now, limit: 3, live: container.liveTrips), now: now)
-                HStack(spacing: 8) {
-                    NavigationLink(value: Route.stop(stop.id)) {
-                        Text(L("all_departures"))
-                            .font(.brand(15, .semibold))
-                            .lineLimit(1)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(AC.primary, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
-                    Button {
-                        // Walking directions in Apple Maps
-                        if let url = URL(string: "http://maps.apple.com/?daddr=\(stop.lat),\(stop.lng)&dirflg=w") { openURL(url) }
-                    } label: {
-                        Label(L("directions"), systemImage: "figure.walk")
-                            .font(.brand(15, .semibold))
-                            .foregroundStyle(AC.primary)
-                            .padding(.horizontal, 14)
-                            .frame(minHeight: 48)
-                            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(AC.outline, lineWidth: 1))
-                    }
-                    .buttonStyle(.plain)
-                }
+        Ticking { now in card(now: now) }
+            .alert(L("voice_missing"), isPresented: $voiceMissing) {
+                Button(L("close"), role: .cancel) {}
             }
-            .padding(.leading, 16)
-            .padding(.trailing, 8)
-            .padding(.vertical, 12)
-            .background(AC.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(AC.border, lineWidth: 1))
-            .shadow(color: .black.opacity(0.18), radius: 10, y: 3)
-            .padding(.horizontal, 8)
-            .padding(.bottom, 12)
+            .onDisappear { announcer.stop() }
+    }
+
+    /// The card at [now], reading its departures out loud when they change and voice is on
+    private func card(now: LocalDateTime) -> some View {
+        let departures = container.schedule.nextDepartures(stop.id, now: now, limit: 3, live: container.liveTrips)
+        let nextIsClose = departures.first.map { $0.dayOffset == 0 && Schedule.minutesUntil($0, now: now) <= 2 } ?? false
+        // Said when the card opens or the voice is turned on, when the first bus leaves, and once more
+        // when the next one is two minutes away
+        let spokenKey = "\(voiceOn)|\(nextIsClose)|" + departures.map { "\($0.line.id)-\($0.direction.id)-\($0.minutes)-\($0.dayOffset)" }.joined(separator: ",")
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(stop.title).font(.brand(18, .semibold))
+                    Text(L("stop_code", stop.id)).font(.brand(13)).foregroundStyle(AC.muted)
+                }
+                .padding(.top, 6)
+                Spacer()
+                Button {
+                    voiceChoice = !voiceOn
+                    if voiceOn && !announcer.hasVoice { voiceMissing = true }
+                } label: {
+                    Image(systemName: voiceOn ? "speaker.wave.2.fill" : "speaker.slash")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(voiceOn ? AC.link : AC.muted)
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel(L(voiceOn ? "voice_mute" : "voice_unmute"))
+                Button(action: onClose) {
+                    Image(systemName: "xmark").font(.system(size: 16, weight: .semibold)).foregroundStyle(AC.ink2).frame(width: 44, height: 44)
+                }
+                .accessibilityLabel(L("close"))
+            }
+            DepartureList(departures: departures, now: now)
+            HStack(spacing: 8) {
+                NavigationLink(value: Route.stop(stop.id)) {
+                    Text(L("all_departures"))
+                        .font(.brand(15, .semibold))
+                        .lineLimit(1)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                        .background(AC.primary, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                Button {
+                    // Walking directions in Apple Maps
+                    if let url = URL(string: "http://maps.apple.com/?daddr=\(stop.lat),\(stop.lng)&dirflg=w") { openURL(url) }
+                } label: {
+                    Label(L("directions"), systemImage: "figure.walk")
+                        .font(.brand(15, .semibold))
+                        .foregroundStyle(AC.primary)
+                        .padding(.horizontal, 14)
+                        .frame(minHeight: 48)
+                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(AC.outline, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.leading, 16)
+        .padding(.trailing, 8)
+        .padding(.vertical, 12)
+        .background(AC.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(AC.border, lineWidth: 1))
+        .shadow(color: .black.opacity(0.18), radius: 10, y: 3)
+        .padding(.horizontal, 8)
+        .padding(.bottom, 12)
+        .onChange(of: spokenKey, initial: true) { _, key in
+            guard key != lastSpoken else { return }
+            lastSpoken = key
+            if voiceOn {
+                announcer.speak(Announcer.announcement(stopName: stop.name.text, departures: departures, now: now))
+            } else {
+                announcer.stop()
+            }
         }
     }
 }
