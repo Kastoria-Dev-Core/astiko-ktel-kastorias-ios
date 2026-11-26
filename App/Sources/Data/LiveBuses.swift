@@ -1,33 +1,5 @@
 import Foundation
 
-/// A bus that sent where it is, from the phone kept in it (astiko-ktel-odigoi)
-struct LiveBus: Codable, Hashable {
-    /// The bus, e.g. "12"
-    let vehicle: String
-    /// `Line.id`
-    let line: String
-    /// `Direction.id`
-    let direction: String
-    /// Latitude, WGS84
-    let lat: Double
-    /// Longitude, WGS84
-    let lng: Double
-    /// Direction of travel, degrees clockwise from north, when the phone knew it
-    let bearing: Double?
-    /// Metres per second, when the phone knew it
-    let speed: Double?
-    /// When the phone got the position, ISO instant
-    let t: String
-}
-
-/// What the server answers
-struct LiveFeed: Codable {
-    /// When the server made the answer
-    let updated: String
-    /// The buses heard from in the last two minutes
-    let buses: [LiveBus]
-}
-
 /// Where the buses really are, from the drivers' phones through the astiko-ktel-live server. Asks at most
 /// every 10 seconds; with no signal the last answer is kept for a minute, then nothing, so the map goes back
 /// to the timetable's estimates instead of showing buses where they were.

@@ -15,7 +15,7 @@ struct Localized: Codable, Hashable {
 }
 
 /// A bus stop
-struct Stop: Codable, Hashable, Identifiable {
+struct Stop: Codable, Hashable {
     /// The operator's stop code, e.g. "16001"; shown as "Stop 16001"
     let id: String
     /// Its name, e.g. "Αφετηρία"; shown with `qualifier` where two share it
@@ -45,7 +45,7 @@ struct Branch: Codable, Hashable {
 }
 
 /// One way a line runs, e.g. out to the village or back to the Αφετηρία
-struct Direction: Hashable, Identifiable {
+struct Direction: Hashable {
     /// "out" or "in", unique within its line
     let id: String
     /// Where it's going, shown as "To …"
@@ -73,7 +73,7 @@ extension Direction: Codable {
 }
 
 /// A bus line with its directions
-struct Line: Hashable, Identifiable {
+struct Line: Hashable {
     /// Two digits, e.g. "01"; what timetables and routes refer to
     let id: String
     /// As the operator writes it, e.g. "1"; badges pad it to two digits
@@ -291,7 +291,7 @@ final class TransitData {
 }
 
 /// One bus leaving a stop
-struct Departure: Hashable, Identifiable {
+struct Departure: Hashable {
     /// The line of the bus
     let line: Line
     /// Which way it's going

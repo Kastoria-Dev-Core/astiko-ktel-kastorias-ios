@@ -1,32 +1,5 @@
 import Foundation
 
-/// The addresses the app talks to, the same as the Android app's
-enum Endpoints {
-    /// The whole network, published by the Android repo's docs workflow, so a timetable change reaches
-    /// users without a new release
-    static let transitData = URL(string: "https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/data/transit.json")!
-    /// The operator's announcements, from the astiko-ktel-announcements cron job
-    static let announcements = URL(string: "https://astiko-ktel-announcements.vercel.app/api/announcements?kind=service")!
-    /// Where the buses really are, sent by the drivers' phones (astiko-ktel-odigoi)
-    static let live = URL(string: "https://astiko-ktel-live.vercel.app/api/positions")!
-
-    /// Sent as the User-Agent: the app's id and version
-    static var userAgent: String {
-        let info = Bundle.main.infoDictionary
-        let id = Bundle.main.bundleIdentifier ?? "com.kastoriadevs.astikoktel"
-        let version = info?["CFBundleShortVersionString"] as? String ?? "0"
-        return "\(id)/\(version) (iOS)"
-    }
-
-    /// A GET with the app's User-Agent and a JSON Accept header
-    static func request(_ url: URL, timeout: TimeInterval) -> URLRequest {
-        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: timeout)
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
-        return request
-    }
-}
-
 /// Loads the network: the copy downloaded from `Endpoints.transitData` when it's newer than the one built
 /// into the app, otherwise the app's own transit.json.
 ///

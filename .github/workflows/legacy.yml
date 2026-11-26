@@ -1,0 +1,80 @@
+name: Legacy
+
+# The iOS 12 build (AstikaKastoriasLegacy in project.yml, screens in Legacy/) for old iPhones like the
+# iPhone 5s, which can't run the SwiftUI app (iOS 17+). For testing on an old phone only: never released.
+#
+#   - "ipa-ios12" (Artifacts): AstikaKastorias-iOS12.ipa, unsigned. Sideloadly on Windows signs it with a
+#     free Apple ID while installing it (it then runs for 7 days)
+#
+# Runs on pushes that touch it and by hand (Actions -> Legacy -> Run workflow).
+
+on:
+  push:
+    paths:
+      - "Legacy/**"
+      - "App/Sources/Domain/**"
+      - "App/Sources/Data/Models.swift"
+      - "App/Sources/Data/Feeds.swift"
+      - "App/Sources/App/Strings.swift"
+      - "App/Sources/UI/Announcer.swift"
+      - "App/Resources/**"
+      - "project.yml"
+      - ".github/workflows/legacy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: legacy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - name: Make the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Unsigned app for iOS 12
+        run: |
+          mkdir -p build
+          set +e
+          xcodebuild build \
+            -project AstikaKastorias.xcodeproj -scheme AstikaKastoriasLegacy \
+            -configuration Release -sdk iphoneos -destination "generic/platform=iOS" \
+            -derivedDataPath build/device \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" > build/legacy.log 2>&1
+          status=$?
+          set -e
+          grep -E "error:|warning: .*(deprecated|only available)" build/legacy.log | sort -u | head -200 || true
+          tail -5 build/legacy.log
+          if [ $status -ne 0 ]; then exit $status; fi
+          app=build/device/Build/Products/Release-iphoneos/AstikaKastoriasLegacy.app
+          test -d "$app"
+          /usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$app/Info.plist"
+          lipo -info "$app/AstikaKastoriasLegacy"
+          mkdir -p build/ipa/Payload
+          cp -R "$app" build/ipa/Payload/
+          (cd build/ipa && zip -qr ../AstikaKastorias-iOS12.ipa Payload)
+          ls -la build/AstikaKastorias-iOS12.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipa-ios12
+          path: build/AstikaKastorias-iOS12.ipa
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legacy-build-log
+          path: build/legacy.log
+          retention-days: 7

@@ -1,7 +1,7 @@
 import Foundation
 
 /// The places offered in "Where do you want to go?", each with the stops that count as "there"
-enum Destination: String, CaseIterable, Identifiable {
+enum Destination: String, CaseIterable {
     /// Αφετηρία and Αφετηρία 2, the terminal in the centre: almost every line starts and ends there
     case centre
     /// Every stop of Μανιάκοι
@@ -47,7 +47,7 @@ struct Ride: Hashable {
 }
 
 /// The next bus of a ride you can still walk to in time, and the one after it
-struct JourneyOption: Hashable, Identifiable {
+struct JourneyOption: Hashable {
     /// Which line, from where, to where
     let ride: Ride
     /// When the bus reaches the boarding stop, minutes since midnight

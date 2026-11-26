@@ -98,7 +98,7 @@ enum LiveTrips {
 }
 
 /// A bus to draw on the map, where it really is or where the timetable says it should be
-struct BusOnMap: Hashable, Identifiable {
+struct BusOnMap: Hashable {
     let id: String
     /// The line it's running
     let line: Line

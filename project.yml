@@ -61,6 +61,51 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
 
+  # The same app for old iPhones (iOS 12, e.g. the iPhone 5s): SwiftUI is iOS 13+, so its screens are
+  # UIKit (Legacy/Sources). It shares the network model, timetable logic, search and texts with the app.
+  # Built by legacy.yml, for testing on an old phone only: not for the App Store.
+  AstikaKastoriasLegacy:
+    type: application
+    platform: iOS
+    deploymentTarget: "12.0"
+    sources:
+      - path: Legacy/Sources
+      - path: App/Sources/Domain
+      - path: App/Sources/Data/Models.swift
+      - path: App/Sources/Data/Feeds.swift
+      - path: App/Sources/App/Strings.swift
+      - path: App/Sources/UI/Announcer.swift
+      - path: Legacy/Resources
+      - path: App/Resources
+        buildPhase: resources
+    info:
+      path: Legacy/Info.plist
+      properties:
+        CFBundleDisplayName: Αστικά Καστοριάς
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDevelopmentRegion: el
+        CFBundleLocalizations: [el, en]
+        LSApplicationQueriesSchemes: [comgooglemaps]
+        UILaunchStoryboardName: LaunchScreen
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIAppFonts:
+          - commissioner_regular.ttf
+          - commissioner_medium.ttf
+          - commissioner_semibold.ttf
+          - commissioner_bold.ttf
+        NSLocationWhenInUseUsageDescription: >-
+          Για τις στάσεις κοντά σου και τα λεωφορεία που σε πάνε εκεί που θέλεις.
+          Η θέση σου μένει στο κινητό και δεν στέλνεται πουθενά.
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_NAME: AstikaKastoriasLegacy
+        PRODUCT_BUNDLE_IDENTIFIER: com.kastoriadevs.astikoktel.legacy
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ARCHS: arm64
+
   AstikaKastoriasTests:
     type: bundle.unit-test
     platform: iOS
@@ -82,6 +127,15 @@ schemes:
     test:
       targets:
         - AstikaKastoriasTests
+    run:
+      config: Debug
+    archive:
+      config: Release
+
+  AstikaKastoriasLegacy:
+    build:
+      targets:
+        AstikaKastoriasLegacy: all
     run:
       config: Debug
     archive:
