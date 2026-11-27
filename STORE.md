@@ -10,7 +10,7 @@ What's ready in this repo, and what's left to do in App Store Connect.
 * **Icon** (1024 x 1024, no transparency), launch screen, and a build number that goes up with every release
 * **Store listing,** in Greek (`el`) and English (`en-US`), in `fastlane/metadata/<locale>/`: name, subtitle, description, keywords, promotional text, and the support, privacy and marketing URLs. Category: Navigation, then Travel
 * **Screenshots** for the 6.9" display (1320 x 2868) in `fastlane/screenshots/<locale>/`, made by `scripts/store_assets.py` from the Screenshots workflow's full-size images
-* **Privacy policy:** https://kastoria-dev-core.github.io/privacy/ · **Support:** https://kastoria-dev-core.github.io/support/
+* **Privacy policy:** https://kastoria-dev-core.github.io/privacy/ · **Support:** https://kastoria-dev-core.github.io/support/ · **Contact email:** kastoriadevcore@michadasis.com
 
 The folder layout is fastlane's, so `fastlane deliver` can upload the listing and the screenshots from CI.
 
@@ -33,6 +33,8 @@ The folder layout is fastlane's, so `fastlane deliver` can upload the listing an
 * No accounts, analytics, ads, tracking or crash reporting
 
 **Age rating:** no objectionable content of any kind, no unrestricted web access, no gambling, no user-generated content. It comes out as 4+.
+
+**App Review contact:** kastoriadevcore@michadasis.com (also in `fastlane/metadata/review_information/email_address.txt`). The name and phone number are added in App Store Connect.
 
 **App Review notes:**
 
