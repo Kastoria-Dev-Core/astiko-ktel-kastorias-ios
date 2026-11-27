@@ -55,6 +55,8 @@ struct AboutScreen: View {
     private let email = "astikast@otenet.gr"
     /// Kastoria Dev Core's site, shown under the contributors
     private let teamSite = "https://kastoria-dev-core.github.io/"
+    /// Kastoria Dev Core's email, for bugs, timetable mistakes and ideas about the app
+    private let teamEmail = "kastoriadevcore@michadasis.com"
 
     var body: some View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
@@ -103,6 +105,11 @@ struct AboutScreen: View {
                     Rectangle().fill(AC.divider).frame(height: 1)
                     row(L("website"), "kastoria-dev-core.github.io") {
                         if let url = URL(string: teamSite) { openURL(url) }
+                    }
+                    // Bugs, a wrong timetable, ideas: the team reads this
+                    Rectangle().fill(AC.divider).frame(height: 1)
+                    row(L("contact_email"), teamEmail) {
+                        if let url = URL(string: "mailto:" + teamEmail) { openURL(url) }
                     }
                 }
                 VStack(alignment: .leading, spacing: 8) {
