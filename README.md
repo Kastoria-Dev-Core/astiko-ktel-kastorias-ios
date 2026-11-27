@@ -119,6 +119,10 @@ https://kastoria-dev-core.github.io/astiko-ktel-kastorias-ios/
 python scripts/gen_docs.py
 ```
 
+## Feedback
+
+Something doesn't work, a timetable is wrong, or you have an idea? Email the team at [kastoriadevcore@michadasis.com](mailto:kastoriadevcore@michadasis.com), with the app's version (Settings, "About this app") and what happened. The address is in the app too, on the About page.
+
 ## License
 
 [GNU General Public License v3.0](LICENSE) or later, like the Android app. See [NOTICE](NOTICE).
